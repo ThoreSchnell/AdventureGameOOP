@@ -1,0 +1,56 @@
+AdventureName: The Enchanted Forest
+Introduction: You find yourself in a mystical forest filled with magical creatures and hidden treasures. Solve puzzles and interact with the forest's inhabitants to uncover its secrets.
+
+Room: Clearing
+Description: A serene clearing surrounded by tall trees. The sunlight streams through the leaves.
+Connections: Cave=north(locked=MagicSeal), River=east, Meadow=west
+
+Room: Cave
+Description: A dark cave with walls that shimmer faintly. A pedestal holds a glowing orb.
+Connections: Clearing=south
+
+Room: River
+Description: A flowing river with crystal-clear water. A wooden raft is tied to a tree.
+Connections: Clearing=west, Island=east
+
+Room: Island
+Description: A small island with a large tree. Beneath the tree lies a locked chest.
+Connections: River=west
+
+Room: Meadow
+Description: A lush meadow filled with colorful flowers and buzzing bees. A wise druid meditates here.
+Connections: Clearing=east
+
+Item: MagicOrb
+Description: A glowing orb that hums with magical energy.
+Location: Cave
+Use: MagicSeal
+
+Item: Rope
+Description: A sturdy rope, perfect for tying things together.
+Location: Meadow
+
+Item: Plank
+Description: A wooden plank, slightly worn but sturdy.
+Location: River
+
+Item: Raft
+Description: A makeshift raft built from planks and rope.
+Location: None
+Combine: Plank + Rope = Raft
+
+Item: Key
+Description: A golden key with intricate engravings.
+Location: Island
+Use: Chest
+
+Item: Chest
+Description: A locked chest beneath the tree. What treasures does it hold?
+Location: Island
+
+Actor: Druid
+Description: A wise druid who knows the secrets of the forest.
+Dialogue: Seek the glowing orb in the cave to break the magical seal.
+Location: Meadow
+
+StartRoom: Clearing
