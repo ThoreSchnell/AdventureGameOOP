@@ -1,5 +1,6 @@
 package com.thehxlab.adventureengine.GUIs;
 
+import com.thehxlab.adventureengine.GUIs.Player.Player;
 import com.thehxlab.adventureengine.GUIs.lvl.clearing;
 
 import javax.swing.*;
@@ -61,7 +62,7 @@ public class Overlays extends JFrame {
         GiveB.setOpaque(true);
 
 
-        JLayeredPane layeredPane=Layer();
+        JLayeredPane layeredPane=Layer(frame.getWidth(),frame.getHeight());
 
 
 
@@ -135,22 +136,26 @@ public class Overlays extends JFrame {
         return InvGrid;
     }
 
-    private JLayeredPane Layer() {
+    private JLayeredPane Layer(int width, int height) {
         JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.setPreferredSize(new Dimension(1920, 700));
+        layeredPane.setPreferredSize(new Dimension(width, height-height/5));
         layeredPane.setLayout(null); // wichtig: kein Layout-Manager
 
         JPanel background = new clearing("com/thehxlab/adventureengine/GUIs/lvl/clearing/background.png");
         background.setBounds(0, 0, layeredPane.getPreferredSize().width, 20+layeredPane.getPreferredSize().height);
         layeredPane.add(background, Integer.valueOf(0));
 
+        JPanel player = new Player();
+        player.setLocation(800,500);
+        layeredPane.add(player, Integer.valueOf(2));
+
         JPanel stagePanel = new clearing("com/thehxlab/adventureengine/GUIs/lvl/clearing/foreground.png");
         stagePanel.setBounds(0, 0, layeredPane.getPreferredSize().width, 20+layeredPane.getPreferredSize().height);
-        layeredPane.add(stagePanel, Integer.valueOf(2));
+        layeredPane.add(stagePanel, Integer.valueOf(3));
 
-        JPanel player = new clearing("com/thehxlab/adventureengine/GUIs/lvl/clearing/stage.png");
-        player.setBounds(0, 0, layeredPane.getPreferredSize().width, 20+layeredPane.getPreferredSize().height);
-        layeredPane.add(player, Integer.valueOf(1));
+        JPanel playerstage = new clearing("com/thehxlab/adventureengine/GUIs/lvl/clearing/stage.png");
+        playerstage.setBounds(0, 0, layeredPane.getPreferredSize().width, 20+layeredPane.getPreferredSize().height);
+        layeredPane.add(playerstage, Integer.valueOf(1));
 
         layeredPane.setVisible(true);
         return layeredPane;
