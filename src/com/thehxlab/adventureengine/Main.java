@@ -1,7 +1,5 @@
 package com.thehxlab.adventureengine;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 import com.thehxlab.adventureengine.GUIs.Overlays;

@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+
 public class Overlays extends JFrame {
     public Overlays(){
 
@@ -67,7 +68,6 @@ public class Overlays extends JFrame {
 
 
 
-
         
 
         JPanel UITop =new JPanel(new BorderLayout());
@@ -116,6 +116,7 @@ public class Overlays extends JFrame {
         frame.add(layeredPane,BorderLayout.CENTER);
         frame.add(UIBack, BorderLayout.SOUTH);
 
+        layeredPane.repaint();
         frame.setVisible(true);
         frame.revalidate();
         frame.repaint();
@@ -141,23 +142,24 @@ public class Overlays extends JFrame {
         layeredPane.setPreferredSize(new Dimension(width, height-height/5));
         layeredPane.setLayout(null); // wichtig: kein Layout-Manager
 
-        JPanel background = new clearing("com/thehxlab/adventureengine/GUIs/lvl/clearing/background.png");
+        JPanel background = new clearing("com/thehxlab/adventureengine/GUIs/lvl/clearing/background.png",false, null);
         background.setBounds(0, 0, layeredPane.getPreferredSize().width, 20+layeredPane.getPreferredSize().height);
         layeredPane.add(background, Integer.valueOf(0));
 
-        JPanel player = new Player();
-        player.setLocation(800,500);
+        Player player = new Player();
+        int centerX = (layeredPane.getPreferredSize().width - player.getWidth()) / 2;
+        int centerY = (layeredPane.getPreferredSize().height - player.getHeight()) / 2;
+        player.setLocation(centerX, centerY);
         layeredPane.add(player, Integer.valueOf(2));
 
-        JPanel stagePanel = new clearing("com/thehxlab/adventureengine/GUIs/lvl/clearing/foreground.png");
-        stagePanel.setBounds(0, 0, layeredPane.getPreferredSize().width, 20+layeredPane.getPreferredSize().height);
-        layeredPane.add(stagePanel, Integer.valueOf(3));
+        JPanel ForegroundPanel = new clearing("com/thehxlab/adventureengine/GUIs/lvl/clearing/foreground.png",false, null);
+        ForegroundPanel.setBounds(0, 0, layeredPane.getPreferredSize().width, 20+layeredPane.getPreferredSize().height);
+        layeredPane.add(ForegroundPanel, Integer.valueOf(3));
 
-        JPanel playerstage = new clearing("com/thehxlab/adventureengine/GUIs/lvl/clearing/stage.png");
+        JPanel playerstage = new clearing("com/thehxlab/adventureengine/GUIs/lvl/clearing/stage.png",true,player);
         playerstage.setBounds(0, 0, layeredPane.getPreferredSize().width, 20+layeredPane.getPreferredSize().height);
         layeredPane.add(playerstage, Integer.valueOf(1));
-
-        layeredPane.setVisible(true);
+            layeredPane.setVisible(true);
         return layeredPane;
     }
 
