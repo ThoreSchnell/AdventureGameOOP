@@ -26,7 +26,7 @@ public class clearing extends JPanel {
                 backgroundImage = ImageIO.read(imageUrl);
                 System.out.println("Bild geladen: " + imagePath);
             } else {
-                System.err.println("❌ Bild nicht gefunden: " + imagePath);
+                System.err.println("❌< Bild nicht gefunden: " + imagePath);
             }
         } catch (IOException e) {
             System.err.println("⚠️ Fehler beim Laden des Bildes: " + imagePath);
@@ -76,22 +76,45 @@ public class clearing extends JPanel {
         int delay = 10; // ms
         int speed = 4;  // pixel pro Schritt
 
+
+
         moveTimer = new Timer(delay, null);
         moveTimer.addActionListener(evt -> {
             Point current = player.getLocation();
             int dx = targetX - current.x;
             int dy = targetY - current.y;
 
-            // Wenn nahe genug, Bewegung stoppen
-            if (Math.abs(dx) < speed && Math.abs(dy) < speed) {
-                player.setLocation(targetX, targetY);
-                moveTimer.stop();
-                return;
+            player.setWalking(true); // beim Start
+            player.setDirection(dx > 0); // je nach Richtung
+
+            if (dx > 0) {
+                player.setDirection(false); // nach rechts
+            } else if (dx < 0) {
+                player.setDirection(true); // nach links
             }
 
+
+            if (Math.abs(dx) <= speed && Math.abs(dy) <= speed) {
+                player.setLocation(targetX, targetY);
+                moveTimer.stop();
+                player.setWalking(false); // beim Stopp
+                return;
+            }
             // Neue Position berechnen (ein Schritt)
-            int stepX = (int) (speed * Math.signum(dx));
-            int stepY = (int) (speed * Math.signum(dy));
+            int stepX = 0;
+            int stepY = 0;
+
+            if (Math.abs(dx) > speed) {
+                stepX = (int) (speed * Math.signum(dx));
+            } else {
+                stepX = dx; // letzter kleiner Schritt
+            }
+
+            if (Math.abs(dy) > speed) {
+                stepY = (int) (speed * Math.signum(dy));
+            } else {
+                stepY = dy; // letzter kleiner Schritt
+            }
 
             player.setLocation(current.x + stepX, current.y + stepY);
             player.repaint();
@@ -99,6 +122,7 @@ public class clearing extends JPanel {
 
         moveTimer.start();
     }
+
 
 
 

@@ -147,6 +147,7 @@ public class Overlays extends JFrame {
         layeredPane.add(background, Integer.valueOf(0));
 
         Player player = new Player();
+        player.setSize(player.getPreferredSize());
         int centerX = (layeredPane.getPreferredSize().width - player.getWidth()) / 2;
         int centerY = (layeredPane.getPreferredSize().height - player.getHeight()) / 2;
         player.setLocation(centerX, centerY);
