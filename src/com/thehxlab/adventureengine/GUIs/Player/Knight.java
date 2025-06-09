@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
 
-public class Player extends JPanel {
+public class Knight extends JPanel {
     private final ImageIcon knightIdle;
     private final ImageIcon knightRightGif;
     private final ImageIcon knightLeftGif;
@@ -14,7 +14,7 @@ public class Player extends JPanel {
     private boolean facingRight = true;
     private boolean isWalking = false;
 
-    public Player() {
+    public Knight() {
         knightIdle = new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/thehxlab/adventureengine/GUIs/Player/Knight-Idle.gif")));
         knightRightGif = new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/thehxlab/adventureengine/GUIs/Player/Knight-left.gif")));
         knightLeftGif = new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/thehxlab/adventureengine/GUIs/Player/Knight-right.gif")));

@@ -1,6 +1,6 @@
 package com.thehxlab.adventureengine.GUIs.lvl;
 
-import com.thehxlab.adventureengine.GUIs.Player.Player;
+import com.thehxlab.adventureengine.GUIs.Player.Knight;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -11,13 +11,13 @@ import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.io.IOException;
 
-public class clearing extends JPanel {
-    private final Player player;
+public class lvlpainter extends JPanel {
+    private final Knight knight;
     private BufferedImage backgroundImage;
     private Timer moveTimer = null; // Hier, außerhalb des Konstruktors!
 
-    public clearing(String imagePath, boolean enableClickDetection, Player playerToMove) {
-        this.player = playerToMove;
+    public lvlpainter(String imagePath, boolean enableClickDetection, Knight knightToMove) {
+        this.knight = knightToMove;
 
         // Bild laden
         try {
@@ -37,14 +37,14 @@ public class clearing extends JPanel {
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    KlickTracker(e, clearing.this.player);
+                    KlickTracker(e, lvlpainter.this.knight);
                 }
             });
         }
 
         setOpaque(false);
     }
-    public void KlickTracker(MouseEvent e, Player player) {
+    public void KlickTracker(MouseEvent e, Knight knight) {
         if (backgroundImage == null) return;
 
         int panelWidth = getWidth();
@@ -60,19 +60,19 @@ public class clearing extends JPanel {
             int alpha = (pixel >> 24) & 0xff;
 
             if (alpha > 0) {
-                int targetX = e.getX() - player.getWidth() / 2;
-                int targetY = e.getY() - player.getHeight();
+                int targetX = e.getX() - knight.getWidth() / 2;
+                int targetY = e.getY() - knight.getHeight();
 
                 // Vorherigen Timer stoppen, falls noch aktiv
                 if (moveTimer != null && moveTimer.isRunning()) {
                     moveTimer.stop();
                 }
 
-                animatePlayerTo(player, targetX, targetY);
+                animatePlayerTo(knight, targetX, targetY);
             }
         }
     }
-    private void animatePlayerTo(Player player, int targetX, int targetY) {
+    private void animatePlayerTo(Knight knight, int targetX, int targetY) {
         int delay = 10; // ms
         int speed = 4;  // pixel pro Schritt
 
@@ -80,24 +80,24 @@ public class clearing extends JPanel {
 
         moveTimer = new Timer(delay, null);
         moveTimer.addActionListener(evt -> {
-            Point current = player.getLocation();
+            Point current = knight.getLocation();
             int dx = targetX - current.x;
             int dy = targetY - current.y;
 
-            player.setWalking(true); // beim Start
-            player.setDirection(dx > 0); // je nach Richtung
+            knight.setWalking(true); // beim Start
+            knight.setDirection(dx > 0); // je nach Richtung
 
             if (dx > 0) {
-                player.setDirection(false); // nach rechts
+                knight.setDirection(false); // nach rechts
             } else if (dx < 0) {
-                player.setDirection(true); // nach links
+                knight.setDirection(true); // nach links
             }
 
 
             if (Math.abs(dx) <= speed && Math.abs(dy) <= speed) {
-                player.setLocation(targetX, targetY);
+                knight.setLocation(targetX, targetY);
                 moveTimer.stop();
-                player.setWalking(false); // beim Stopp
+                knight.setWalking(false); // beim Stopp
                 return;
             }
             // Neue Position berechnen (ein Schritt)
@@ -116,8 +116,8 @@ public class clearing extends JPanel {
                 stepY = dy; // letzter kleiner Schritt
             }
 
-            player.setLocation(current.x + stepX, current.y + stepY);
-            player.repaint();
+            knight.setLocation(current.x + stepX, current.y + stepY);
+            knight.repaint();
         });
 
         moveTimer.start();

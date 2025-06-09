@@ -1,7 +1,9 @@
 package com.thehxlab.adventureengine.GUIs;
 
-import com.thehxlab.adventureengine.GUIs.Player.Player;
-import com.thehxlab.adventureengine.GUIs.lvl.clearing;
+import com.thehxlab.adventureengine.GUIs.Player.Knight;
+import com.thehxlab.adventureengine.GUIs.lvl.lvlpainter;
+import com.thehxlab.adventureengine.core.Player;
+import com.thehxlab.adventureengine.core.Room;
 
 import javax.swing.*;
 import java.awt.*;
@@ -138,26 +140,29 @@ public class Overlays extends JFrame {
     }
 
     private JLayeredPane Layer(int width, int height) {
+        Player player = new Player();
+        System.out.println(player.getCurrentRoom());
+        System.out.println("Aktueller Raum: ");
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(width, height-height/5));
         layeredPane.setLayout(null); // wichtig: kein Layout-Manager
 
-        JPanel background = new clearing("com/thehxlab/adventureengine/GUIs/lvl/clearing/background.png",false, null);
+        JPanel background = new lvlpainter("com/thehxlab/adventureengine/GUIs/lvl/clearing/background.png",false, null);
         background.setBounds(0, 0, layeredPane.getPreferredSize().width, 20+layeredPane.getPreferredSize().height);
         layeredPane.add(background, Integer.valueOf(0));
 
-        Player player = new Player();
-        player.setSize(player.getPreferredSize());
-        int centerX = (layeredPane.getPreferredSize().width - player.getWidth()) / 2;
-        int centerY = (layeredPane.getPreferredSize().height - player.getHeight()) / 2;
-        player.setLocation(centerX, centerY);
-        layeredPane.add(player, Integer.valueOf(2));
+        Knight knight = new Knight();
+        knight.setSize(knight.getPreferredSize());
+        int centerX = (layeredPane.getPreferredSize().width - knight.getWidth()) / 2;
+        int centerY = (layeredPane.getPreferredSize().height - knight.getHeight()) / 2;
+        knight.setLocation(centerX, centerY);
+        layeredPane.add(knight, Integer.valueOf(2));
 
-        JPanel ForegroundPanel = new clearing("com/thehxlab/adventureengine/GUIs/lvl/clearing/foreground.png",false, null);
+        JPanel ForegroundPanel = new lvlpainter("com/thehxlab/adventureengine/GUIs/lvl/clearing/foreground.png",false, null);
         ForegroundPanel.setBounds(0, 0, layeredPane.getPreferredSize().width, 20+layeredPane.getPreferredSize().height);
         layeredPane.add(ForegroundPanel, Integer.valueOf(3));
 
-        JPanel playerstage = new clearing("com/thehxlab/adventureengine/GUIs/lvl/clearing/stage.png",true,player);
+        JPanel playerstage = new lvlpainter("com/thehxlab/adventureengine/GUIs/lvl/clearing/stage.png",true, knight);
         playerstage.setBounds(0, 0, layeredPane.getPreferredSize().width, 20+layeredPane.getPreferredSize().height);
         layeredPane.add(playerstage, Integer.valueOf(1));
             layeredPane.setVisible(true);
