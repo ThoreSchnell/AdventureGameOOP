@@ -20,8 +20,6 @@ public class Knight extends JPanel {
         knightLeftGif = new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/thehxlab/adventureengine/GUIs/Player/Knight-right.gif")));
         currentGif = knightIdle; // Standard: nach rechts
 
-        currentGif = knightIdle;
-
         setOpaque(false);
         setPreferredSize(new Dimension(currentGif.getIconWidth(), currentGif.getIconHeight()));
         setLayout(null);

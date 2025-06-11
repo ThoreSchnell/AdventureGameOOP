@@ -11,14 +11,13 @@ import javax.swing.*;
 
 public class Main extends JFrame {
     public static void main(String[] args) {
-        Overlays frame = new Overlays();
-        frame.setVisible(true);
-        try {
 
+        try {
             // Compile the game world from the .hsfl file
             String filePath = "adventures/forrest.hsfl";
             GameWorld world = GameCompiler.compile(filePath);
-
+            Overlays frame = new Overlays();
+            frame.setVisible(true);
             // Start the game interpreter
             GameInterpreter interpreter = new GameInterpreter(world);
             interpreter.start();

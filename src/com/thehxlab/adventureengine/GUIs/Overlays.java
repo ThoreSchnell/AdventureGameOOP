@@ -2,6 +2,7 @@ package com.thehxlab.adventureengine.GUIs;
 
 import com.thehxlab.adventureengine.GUIs.Player.Knight;
 import com.thehxlab.adventureengine.GUIs.lvl.lvlpainter;
+import com.thehxlab.adventureengine.core.GameWorld;
 import com.thehxlab.adventureengine.core.Player;
 import com.thehxlab.adventureengine.core.Room;
 
@@ -12,6 +13,7 @@ import java.awt.event.WindowEvent;
 
 
 public class Overlays extends JFrame {
+
     public Overlays(){
 
         JFrame frame = new JFrame("Game");
@@ -140,8 +142,10 @@ public class Overlays extends JFrame {
     }
 
     private JLayeredPane Layer(int width, int height) {
-        Player player = new Player();
-        System.out.println(player.getCurrentRoom());
+        Player player = world.getPlayer();
+        Room currentRoom = player.getCurrentRoom();
+        String Roomname = currentRoom.getName();
+        System.out.println(Roomname);
         System.out.println("Aktueller Raum: ");
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(width, height-height/5));
