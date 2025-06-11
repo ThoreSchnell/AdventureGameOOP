@@ -16,7 +16,7 @@ public class Main extends JFrame {
             // Compile the game world from the .hsfl file
             String filePath = "adventures/forrest.hsfl";
             GameWorld world = GameCompiler.compile(filePath);
-            Overlays frame = new Overlays();
+            Overlays frame = new Overlays(world);
             frame.setVisible(true);
             // Start the game interpreter
             GameInterpreter interpreter = new GameInterpreter(world);
