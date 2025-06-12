@@ -123,10 +123,6 @@ public class lvlpainter extends JPanel {
         moveTimer.start();
     }
 
-
-
-
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
