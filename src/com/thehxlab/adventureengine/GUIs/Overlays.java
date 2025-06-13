@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Arrays;
 
 
 public class Overlays extends JFrame {
@@ -32,6 +33,7 @@ public class Overlays extends JFrame {
             @Override
             public void windowGainedFocus(WindowEvent e) {
                 focus=true;
+                frame.setVisible(true);
                 System.out.println("Fokus wieder da");
             }
         });
@@ -147,7 +149,7 @@ public class Overlays extends JFrame {
         Room currentRoom = player.getCurrentRoom();
         String Roomname = currentRoom.getName().toLowerCase();
         System.out.println("Aktueller Raum: "+Roomname);
-
+        System.out.println("Connectet Richtung: "+ Arrays.toString(currentRoom.getConnections()));
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(width, height-height/5));
         layeredPane.setLayout(null); // wichtig: kein Layout-Manager
@@ -170,7 +172,25 @@ public class Overlays extends JFrame {
         JPanel playerstage = new lvlpainter("com/thehxlab/adventureengine/GUIs/lvl/"+Roomname+"/stage.png",true, knight);
         playerstage.setBounds(0, 0, layeredPane.getPreferredSize().width, 20+layeredPane.getPreferredSize().height);
         layeredPane.add(playerstage, Integer.valueOf(1));
-            layeredPane.setVisible(true);
+
+        JButton GoN = new JButton("Norden");
+        GoN.setBounds((width - 60) / 2, 10, 80, 30);
+        layeredPane.add(GoN,Integer.valueOf(4));
+
+        JButton GoE = new JButton("Osten");
+        GoE.setBounds(width - 90,height/5*2, 80, 30);
+        layeredPane.add(GoE,Integer.valueOf(4));
+
+        JButton GoS = new JButton("Süden");
+        GoS.setBounds((width - 60) / 2, height/3*2-50, 80, 30);
+        layeredPane.add(GoS,Integer.valueOf(4));
+
+        JButton GoW = new JButton("Westen");
+        GoW.setBounds(10,height/5*2, 80, 30);
+        layeredPane.add(GoW,Integer.valueOf(4));
+
+
+        layeredPane.setVisible(true);
         return layeredPane;
     }
 
