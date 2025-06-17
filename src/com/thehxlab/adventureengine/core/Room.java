@@ -1,25 +1,21 @@
 package com.thehxlab.adventureengine.core;
 
 public class Room {
-	
-	private String name;
-	private String description;
-	
-	//private ArrayList<Item> items; //later!
-	private Item[] items = new Item[10]; // Fixed size for now	
-	
-	private Room[] connections = new Room[4];
-	private Lock[] locks =  new Lock[4];
-	
+
+    private String name;
+    private String description;
+
+    private Item[] items = new Item[10];
+    private Room[] connections = new Room[4];
+    private Lock[] locks = new Lock[4];
     private Actor[] actors = new Actor[5];
-	
-	public Room(String name, String desc) {
-		this.name = name;
-		this.description = desc;
-		//this.items = new ArrayList<Item>();
-	}
-	
-	public String getName() {
+
+    public Room(String name, String desc) {
+        this.name = name;
+        this.description = desc;
+    }
+
+    public String getName() {
         return name;
     }
 
@@ -49,7 +45,7 @@ public class Room {
             }
         }
     }
-    
+
     public void addActor(Actor actor) {
         for (int i = 0; i < actors.length; i++) {
             if (actors[i] == null) {
@@ -72,7 +68,7 @@ public class Room {
     public Actor[] getActors() {
         return actors;
     }
-    
+
     public Actor getActorByName(String actorName) {
         for (Actor actor : actors) {
             if (actor != null && actor.getName().equalsIgnoreCase(actorName)) {
@@ -82,7 +78,6 @@ public class Room {
         return null;
     }
 
-    
     public Room[] getConnections() {
         return connections;
     }
@@ -91,6 +86,7 @@ public class Room {
         return locks;
     }
 
+    // Ursprüngliche Methode mit int
     public void connectRoom(Room room, int direction, Lock lock) {
         if (direction >= 0 && direction < connections.length) {
             connections[direction] = room;
@@ -98,8 +94,18 @@ public class Room {
         }
     }
 
+    // NEU: Elegantere Methode mit Direction
+    public void connectRoom(Room room, Direction direction, Lock lock) {
+        connectRoom(room, direction.getIndex(), lock);
+    }
+
     public boolean isAccessible(int direction) {
         return locks[direction] == null || locks[direction].isUnlocked();
+    }
+
+    // NEU: Methode mit Direction
+    public boolean isAccessible(Direction direction) {
+        return isAccessible(direction.getIndex());
     }
 
     public String getLockDescription(int direction) {
@@ -109,4 +115,8 @@ public class Room {
         return null;
     }
 
+    // NEU: Methode mit Direction
+    public Room getConnectedRoom(Direction direction) {
+        return connections[direction.getIndex()];
+    }
 }
