@@ -1,5 +1,6 @@
 package com.thehxlab.adventureengine.GUIs;
 
+import com.thehxlab.adventureengine.interpreter.CommandExecutor;
 import com.thehxlab.adventureengine.GUIs.Player.Knight;
 import com.thehxlab.adventureengine.GUIs.lvl.lvlpainter;
 import com.thehxlab.adventureengine.core.GameWorld;
@@ -12,11 +13,13 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class Overlays extends JFrame {
+    private CommandExecutor commandExecutor;
     private final GameWorld world;
     private JLayeredPane layeredPane;
 
     public Overlays(GameWorld world) {
         this.world = world;
+        commandExecutor = new CommandExecutor(world);
         setTitle("Game");
         setUndecorated(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -47,6 +50,7 @@ public class Overlays extends JFrame {
                 focus = true;
                 setVisible(true);
                 System.out.println("Fokus wieder da");
+
             }
         });
 
@@ -86,47 +90,40 @@ public class Overlays extends JFrame {
         foreground.setBounds(0, 0, width, height);
         layeredPane.add(foreground, Integer.valueOf(3));
         System.out.println(roomName);
-        Room[] connections = currentRoom.getConnections();
 
-        if (connections[0] != null && currentRoom.isAccessible(0)) {
+
+
             JButton goN = new JButton("Norden");
             goN.setBounds((width - 80) / 2, 10, 80, 30);
             goN.addActionListener(e -> {
-                player.setCurrentRoom(connections[0]);
+                commandExecutor.execute("go","North");
                 reloadUI();
             });
             layeredPane.add(goN, Integer.valueOf(4));
-        }
 
-        if (connections[1] != null && currentRoom.isAccessible(1)) {
             JButton goE = new JButton("Osten");
             goE.setBounds(width - 90, height / 2 - 15, 80, 30);
             goE.addActionListener(e -> {
-                player.setCurrentRoom(connections[1]);
+                commandExecutor.execute("go","East");
                 reloadUI();
             });
             layeredPane.add(goE, Integer.valueOf(4));
-        }
 
-        if (connections[2] != null && currentRoom.isAccessible(2)) {
             JButton goS = new JButton("Süden");
             goS.setBounds((width - 80) / 2, height - 100, 80, 30);
             goS.addActionListener(e -> {
-                player.setCurrentRoom(connections[2]);
+                commandExecutor.execute("go","South");
                 reloadUI();
             });
             layeredPane.add(goS, Integer.valueOf(4));
-        }
 
-        if (connections[3] != null && currentRoom.isAccessible(3)) {
             JButton goW = new JButton("Westen");
             goW.setBounds(10, height / 2 - 15, 80, 30);
             goW.addActionListener(e -> {
-                player.setCurrentRoom(connections[3]);
+                commandExecutor.execute("go","West");
                 reloadUI();
             });
             layeredPane.add(goW, Integer.valueOf(4));
-        }
 
         JPanel UITop = new JPanel(new BorderLayout());
         UITop.setBounds(0, 0, width, height / 12);
@@ -149,15 +146,7 @@ public class Overlays extends JFrame {
         InvGrid.setPreferredSize(new Dimension(width / 2 - 30, height / 4 - 20));
         UIinv.add(InvGrid);
 
-        JPanel UseGrid = new JPanel(new GridLayout(3, 3, 10, 10));
-        UseGrid.setOpaque(false);
-        UseGrid.setPreferredSize(new Dimension(width / 2, height / 4 - 20));
-
-        for (String text : new String[]{"Geben", "Nehmen", "Benutze", "Öffne", "Untersuche", "Drücke", "Schließe", "Rede", "Ziehe"}) {
-            JButton b = new JButton(text);
-            if (text.equals("Geben")) b.setBackground(Color.RED);
-            UseGrid.add(b);
-        }
+        JPanel UseGrid = getjPanel(width, height);
 
         UIPanel.add(UseGrid);
         UIBack.add(UIPanel, BorderLayout.WEST);
@@ -166,6 +155,26 @@ public class Overlays extends JFrame {
 
         layeredPane.repaint();
         layeredPane.revalidate();
+    }
+
+    private static JPanel getjPanel(int width, int height) {
+        JPanel UseGrid = new JPanel(new GridLayout(3, 3, 10, 10));
+        UseGrid.setOpaque(false);
+        UseGrid.setPreferredSize(new Dimension(width / 2, height / 4 - 20));
+
+        for (String text : new String[]{"Geben", "Nehmen", "Benutze", "Öffne", "Untersuche", "Drücke", "Schließe", "Rede", "Ziehe"}) {
+            JButton b = new JButton(text);
+            if (text.equals("Geben")) b.setBackground(Color.RED);
+
+
+            /*if(text.equals("Nehmen")&&Itemauswahl){
+                commandExecutor.execute("take",Item);
+            }*/
+
+
+            UseGrid.add(b);
+        }
+        return UseGrid;
     }
 
     private JPanel invcell() {
