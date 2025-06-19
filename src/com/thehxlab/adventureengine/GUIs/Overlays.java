@@ -10,249 +10,185 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Arrays;
-
 
 public class Overlays extends JFrame {
     private final GameWorld world;
-    public Overlays(GameWorld world){
-        this.world = world;
-        JFrame frame = new JFrame("Game");
-        frame.setLayout(new BorderLayout());
+    private JLayeredPane layeredPane;
 
-        frame.addWindowFocusListener(new WindowAdapter() {
+    public Overlays(GameWorld world) {
+        this.world = world;
+        setTitle("Game");
+        setUndecorated(true);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
+
+        if (gd.isFullScreenSupported()) {
+            gd.setFullScreenWindow(this);
+        } else {
+            setExtendedState(JFrame.MAXIMIZED_BOTH);
+            setVisible(true);
+        }
+
+        addWindowFocusListener(new WindowAdapter() {
             boolean focus = false;
+
             @Override
             public void windowLostFocus(WindowEvent e) {
-                if(focus) {
+                if (focus) {
                     System.out.println("Fokus verloren");
-                    focus=false;
+                    focus = false;
                 }
             }
 
             @Override
             public void windowGainedFocus(WindowEvent e) {
-                focus=true;
-                frame.setVisible(true);
+                focus = true;
+                setVisible(true);
                 System.out.println("Fokus wieder da");
             }
         });
 
-
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice gd = ge.getDefaultScreenDevice();
-
-        // JFrame im Vollbild anzeigen
-        if (gd.isFullScreenSupported()) {
-            gd.setFullScreenWindow(frame);
-        } else {
-            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-            frame.setVisible(true);
-        }
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        JButton GiveB = new JButton("Geben");
-        JButton PickB = new JButton("Nehmen");
-        JButton UseB = new JButton("Benutze");
-        JButton OpenB = new JButton("Öffne");
-        JButton LookB = new JButton("Untersuche");
-        JButton PushB = new JButton("Drücke");
-        JButton CloseB = new JButton("Schließe");
-        JButton TalkB = new JButton("Rede");
-        JButton PullB = new JButton("Ziehe");
-        JButton SettingsB = new JButton("Einstellungen");
-
-        SettingsB.setPreferredSize(new Dimension(150, 30));
-
-        SettingsB.addActionListener(e -> Settings(frame));
-        GiveB.setBackground(Color.RED);
-        GiveB.setOpaque(true);
-
-
-        JLayeredPane layeredPane=Layer(frame.getWidth(),frame.getHeight());
-
-
-
-
-        
-
-        JPanel UITop =new JPanel(new BorderLayout());
-        UITop.setPreferredSize(new Dimension(1000,frame.getHeight()/12));
-
-        JPanel UIBack = new JPanel(new BorderLayout());
-        UIBack.setBackground(new Color(133, 133, 133));
-        UIBack.setPreferredSize(new Dimension(1000, frame.getHeight()/4)); // feste Höhe
-
-        // Rechts unten: Button-Panel
-        JPanel UIPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        UIPanel.setOpaque(false); // damit UIBack-Hintergrund sichtbar bleibt
-
-
-        JPanel UIinv = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        UIinv.setOpaque(false);
-
-
-        JPanel InvGrid = invcell();
-        UIinv.setPreferredSize(new Dimension(-20+frame.getWidth()/2,frame.getHeight()/4));
-        InvGrid.setPreferredSize(new Dimension(-30+frame.getWidth()/2,-20+frame.getHeight()/4));
-        UIinv.add(InvGrid);
-
-
-        JPanel UseGrid = new JPanel(new GridLayout(3, 3, 10, 10));
-        UseGrid.setOpaque(false); // ebenfalls durchscheinend
-        UseGrid.setPreferredSize(new Dimension(frame.getWidth()/2, -20+frame.getHeight()/4)); // feste Größe
-
-        // Buttons ins Grid
-        UseGrid.add(GiveB);
-        UseGrid.add(PickB);
-        UseGrid.add(UseB);
-        UseGrid.add(OpenB);
-        UseGrid.add(LookB);
-        UseGrid.add(PushB);
-        UseGrid.add(CloseB);
-        UseGrid.add(TalkB);
-        UseGrid.add(PullB);
-
-        UIPanel.add(UseGrid);
-        UIBack.add(UIinv,BorderLayout.EAST);
-        UIBack.add(UIPanel, BorderLayout.WEST); // Buttons nach unten rechts
-        UITop.add(SettingsB, BorderLayout.WEST);
-
-        frame.add(UITop, BorderLayout.NORTH);
-        frame.add(layeredPane,BorderLayout.CENTER);
-        frame.add(UIBack, BorderLayout.SOUTH);
-
-        layeredPane.repaint();
-        frame.setVisible(true);
-        frame.revalidate();
-        frame.repaint();
+        layeredPane = new JLayeredPane();
+        add(layeredPane);
+        reloadUI();
+        setVisible(true);
     }
 
-    private JPanel invcell() {
-        JPanel InvGrid = new JPanel(new GridLayout(3,4,10,10));
-        InvGrid.setOpaque(false);
-
-
-        for (int i = 0; i < 12; i++) {
-            JPanel cell = new JPanel();
-            cell.setBackground(new Color(100 + i * 10, 100 + i * 10, 255 - i * 10)); // Farbe
-            cell.setBorder(BorderFactory.createLineBorder(Color.BLACK)); // Umrandung
-            InvGrid.add(cell);
-        }
-
-        return InvGrid;
-    }
-
-    private JLayeredPane Layer(int width, int height) {
-        Player player = world.getPlayer();
-        Room currentRoom = player.getCurrentRoom();
-
-        String roomName = currentRoom.getName().toLowerCase();
-        System.out.println("Aktueller Raum: " + roomName);
-
-        JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.setPreferredSize(new Dimension(width, height - height / 5));
-        layeredPane.setLayout(null);
-
-        // Hintergrund
-        JPanel background = new lvlpainter("com/thehxlab/adventureengine/GUIs/lvl/" + roomName + "/background.png", false, null);
-        background.setBounds(0, 0, layeredPane.getPreferredSize().width, 20 + layeredPane.getPreferredSize().height);
-        layeredPane.add(background, Integer.valueOf(0));
-
-        // Spielfigur
-        Knight knight = new Knight();
-        knight.setSize(knight.getPreferredSize());
-        int centerX = (layeredPane.getPreferredSize().width - knight.getWidth()) / 2;
-        int centerY = (layeredPane.getPreferredSize().height - knight.getHeight()) / 2;
-        knight.setLocation(centerX, centerY);
-        layeredPane.add(knight, Integer.valueOf(2));
-
-        // Vordergrund und Bühne
-        JPanel foreground = new lvlpainter("com/thehxlab/adventureengine/GUIs/lvl/" + roomName + "/foreground.png", false, null);
-        foreground.setBounds(0, 0, layeredPane.getPreferredSize().width, 20 + layeredPane.getPreferredSize().height);
-        layeredPane.add(foreground, Integer.valueOf(3));
-
-        JPanel playerStage = new lvlpainter("com/thehxlab/adventureengine/GUIs/lvl/" + roomName + "/stage.png", true, knight);
-        playerStage.setBounds(0, 0, layeredPane.getPreferredSize().width, 20 + layeredPane.getPreferredSize().height);
-        layeredPane.add(playerStage, Integer.valueOf(1));
-
-        Room[] connections = currentRoom.getConnections();
-
-        JButton goN = new JButton("Norden");
-        goN.setBounds((width - 60) / 2, 10, 80, 30);
-        if (connections[0] != null && currentRoom.isAccessible(0)) {
-            layeredPane.add(goN, Integer.valueOf(4));
-            goN.addActionListener(e -> {
-                player.setCurrentRoom(connections[0]);
-                reloadUI(); // neue Methode zum Neuladen der Ansicht
-            });
-        }
-
-        JButton goE = new JButton("Osten");
-        goE.setBounds(width - 90, height / 5 * 2, 80, 30);
-        if (connections[1] != null && currentRoom.isAccessible(1)) {
-            layeredPane.add(goE, Integer.valueOf(4));
-            goE.addActionListener(e -> {
-                player.setCurrentRoom(connections[1]);
-                reloadUI();
-            });
-        }
-
-        JButton goS = new JButton("Süden");
-        goS.setBounds((width - 60) / 2, height / 3 * 2 - 50, 80, 30);
-        if (connections[2] != null && currentRoom.isAccessible(2)) {
-            layeredPane.add(goS, Integer.valueOf(4));
-            goS.addActionListener(e -> {
-                player.setCurrentRoom(connections[2]);
-                reloadUI();
-            });
-        }
-
-        JButton goW = new JButton("Westen");
-        goW.setBounds(10, height / 5 * 2, 80, 30);
-        if (connections[3] != null && currentRoom.isAccessible(3)) {
-            layeredPane.add(goW, Integer.valueOf(4));
-            goW.addActionListener(e -> {
-                player.setCurrentRoom(connections[3]);
-                reloadUI();
-            });
-        }
-
-        layeredPane.setVisible(true);
-        return layeredPane;
-    }
     private void reloadUI() {
-        getContentPane().removeAll(); // Alles löschen
+        layeredPane.removeAll();
 
-        // Layout und Panels neu setzen
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         int width = gd.getDisplayMode().getWidth();
         int height = gd.getDisplayMode().getHeight();
 
-        JLayeredPane newLayer = Layer(width, height);
-        add(newLayer, BorderLayout.CENTER);
+        Player player = world.getPlayer();
+        Room currentRoom = player.getCurrentRoom();
+        String roomName = currentRoom.getName().toLowerCase();
 
-        // Alle anderen UI-Komponenten erneut hinzufügen (Süd- und Nord-Panel, falls notwendig)
-        // Du kannst hier nochmal UIBack und UITop hinzufügen, z. B. in Feldern gespeichert
+        JPanel background = new lvlpainter("com/thehxlab/adventureengine/GUIs/lvl/" + roomName + "/background.png", false, null);
+        background.setBounds(0, 0, width, height);
+        layeredPane.add(background, Integer.valueOf(0));
 
-        revalidate();
-        repaint();
+        Knight knight = new Knight();
+        knight.setSize(knight.getPreferredSize());
+        int centerX = (width - knight.getWidth()) / 2;
+        int centerY = (height - knight.getHeight()) / 2;
+        knight.setLocation(centerX, centerY);
+        layeredPane.add(knight, Integer.valueOf(2));
+
+        JPanel stage = new lvlpainter("com/thehxlab/adventureengine/GUIs/lvl/" + roomName + "/stage.png", true, knight);
+        stage.setBounds(0, 0, width, height);
+        layeredPane.add(stage, Integer.valueOf(1));
+
+        JPanel foreground = new lvlpainter("com/thehxlab/adventureengine/GUIs/lvl/" + roomName + "/foreground.png", false, null);
+        foreground.setBounds(0, 0, width, height);
+        layeredPane.add(foreground, Integer.valueOf(3));
+        System.out.println(roomName);
+        Room[] connections = currentRoom.getConnections();
+
+        if (connections[0] != null && currentRoom.isAccessible(0)) {
+            JButton goN = new JButton("Norden");
+            goN.setBounds((width - 80) / 2, 10, 80, 30);
+            goN.addActionListener(e -> {
+                player.setCurrentRoom(connections[0]);
+                reloadUI();
+            });
+            layeredPane.add(goN, Integer.valueOf(4));
+        }
+
+        if (connections[1] != null && currentRoom.isAccessible(1)) {
+            JButton goE = new JButton("Osten");
+            goE.setBounds(width - 90, height / 2 - 15, 80, 30);
+            goE.addActionListener(e -> {
+                player.setCurrentRoom(connections[1]);
+                reloadUI();
+            });
+            layeredPane.add(goE, Integer.valueOf(4));
+        }
+
+        if (connections[2] != null && currentRoom.isAccessible(2)) {
+            JButton goS = new JButton("Süden");
+            goS.setBounds((width - 80) / 2, height - 100, 80, 30);
+            goS.addActionListener(e -> {
+                player.setCurrentRoom(connections[2]);
+                reloadUI();
+            });
+            layeredPane.add(goS, Integer.valueOf(4));
+        }
+
+        if (connections[3] != null && currentRoom.isAccessible(3)) {
+            JButton goW = new JButton("Westen");
+            goW.setBounds(10, height / 2 - 15, 80, 30);
+            goW.addActionListener(e -> {
+                player.setCurrentRoom(connections[3]);
+                reloadUI();
+            });
+            layeredPane.add(goW, Integer.valueOf(4));
+        }
+
+        JPanel UITop = new JPanel(new BorderLayout());
+        UITop.setBounds(0, 0, width, height / 12);
+        JButton settings = new JButton("Einstellungen");
+        settings.setPreferredSize(new Dimension(150, 30));
+        settings.addActionListener(e -> Settings(this));
+        UITop.add(settings, BorderLayout.WEST);
+        layeredPane.add(UITop, Integer.valueOf(5));
+
+        JPanel UIBack = new JPanel(new BorderLayout());
+        UIBack.setBounds(0, height - height / 4, width, height / 4);
+        UIBack.setBackground(new Color(133, 133, 133));
+
+        JPanel UIPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        UIPanel.setOpaque(false);
+
+        JPanel UIinv = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        UIinv.setOpaque(false);
+        JPanel InvGrid = invcell();
+        InvGrid.setPreferredSize(new Dimension(width / 2 - 30, height / 4 - 20));
+        UIinv.add(InvGrid);
+
+        JPanel UseGrid = new JPanel(new GridLayout(3, 3, 10, 10));
+        UseGrid.setOpaque(false);
+        UseGrid.setPreferredSize(new Dimension(width / 2, height / 4 - 20));
+
+        for (String text : new String[]{"Geben", "Nehmen", "Benutze", "Öffne", "Untersuche", "Drücke", "Schließe", "Rede", "Ziehe"}) {
+            JButton b = new JButton(text);
+            if (text.equals("Geben")) b.setBackground(Color.RED);
+            UseGrid.add(b);
+        }
+
+        UIPanel.add(UseGrid);
+        UIBack.add(UIPanel, BorderLayout.WEST);
+        UIBack.add(UIinv, BorderLayout.EAST);
+        layeredPane.add(UIBack, Integer.valueOf(5));
+
+        layeredPane.repaint();
+        layeredPane.revalidate();
     }
 
+    private JPanel invcell() {
+        JPanel InvGrid = new JPanel(new GridLayout(3, 4, 10, 10));
+        InvGrid.setOpaque(false);
+        for (int i = 0; i < 12; i++) {
+            JPanel cell = new JPanel();
+            cell.setBackground(new Color(100 + i * 10, 100 + i * 10, 255 - i * 10));
+            cell.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            InvGrid.add(cell);
+        }
+        return InvGrid;
+    }
 
     private void Settings(JFrame parent) {
-        // Neues GlassPane erstellen
         JPanel glassPane = new JPanel();
-        glassPane.setBackground(new Color(0, 0, 0, 150)); // halbtransparent schwarz
+        glassPane.setBackground(new Color(0, 0, 0, 150));
         glassPane.setLayout(null);
         glassPane.setOpaque(true);
-
-        // Blockiert Mausinteraktion mit Komponenten darunter
         glassPane.addMouseListener(new java.awt.event.MouseAdapter() {});
         parent.setGlassPane(glassPane);
-        glassPane.setVisible(true); // jetzt sichtbar machen
+        glassPane.setVisible(true);
 
-        // Popup-Fenster
         JWindow settingsWindow = new JWindow(parent);
         settingsWindow.setSize(400, 200);
         settingsWindow.setLocationRelativeTo(parent);
@@ -266,8 +202,8 @@ public class Overlays extends JFrame {
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         backButton.addActionListener(e -> {
             settingsWindow.dispose();
-            parent.setGlassPane(new JPanel()); // leeres Panel setzen
-            parent.getGlassPane().setVisible(false); // sicherstellen, dass es unsichtbar ist
+            parent.setGlassPane(new JPanel());
+            parent.getGlassPane().setVisible(false);
         });
 
         JButton exitButton = new JButton("Spiel beenden");
@@ -282,6 +218,4 @@ public class Overlays extends JFrame {
         settingsWindow.setAlwaysOnTop(true);
         settingsWindow.setVisible(true);
     }
-
-
 }
