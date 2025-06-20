@@ -6,6 +6,8 @@ import com.thehxlab.adventureengine.GUIs.lvl.lvlpainter;
 import com.thehxlab.adventureengine.core.GameWorld;
 import com.thehxlab.adventureengine.core.Player;
 import com.thehxlab.adventureengine.core.Room;
+import com.thehxlab.adventureengine.GUIs.lvl.Items.Items;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -91,6 +93,14 @@ public class Overlays extends JFrame {
         layeredPane.add(foreground, Integer.valueOf(3));
         System.out.println(roomName);
 
+        Items rope = new Items("src/com/thehxlab/adventureengine/GUIs/lvl/Items/Seil.png", "Seil", this, false);
+
+        rope.setLocation(width / 3, height / 3+200);
+        layeredPane.add(rope, Integer.valueOf(2));
+
+        // add(key);
+
+
 
 
             JButton goN = new JButton("Norden");
@@ -156,8 +166,15 @@ public class Overlays extends JFrame {
         layeredPane.repaint();
         layeredPane.revalidate();
     }
+    public void itemClicked(String name) {
+        System.out.println("Item wurde angeklickt: " + name);
 
-    private static JPanel getjPanel(int width, int height) {
+        // Hier könntest du jetzt beliebige Logik machen, z.B.
+        // Aktuelles Item merken
+        // Command ausführen
+        // GUI updaten
+    }
+    private static JPanel getjPanel(int width, int height) {//Die Klasse ist für das erstellen von dem Button Planel unten Links
         JPanel UseGrid = new JPanel(new GridLayout(3, 3, 10, 10));
         UseGrid.setOpaque(false);
         UseGrid.setPreferredSize(new Dimension(width / 2, height / 4 - 20));
@@ -174,6 +191,7 @@ public class Overlays extends JFrame {
 
             UseGrid.add(b);
         }
+
         return UseGrid;
     }
 
