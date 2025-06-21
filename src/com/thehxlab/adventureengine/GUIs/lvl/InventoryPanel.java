@@ -23,7 +23,6 @@ public class InventoryPanel extends JPanel {
         setOpaque(true);
         setBackground(new Color(200, 200, 200)); // fester Hintergrund
 
-        // Feste Größe
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         int width = gd.getDisplayMode().getWidth() / 2 - 50;
         int height = 250;
@@ -65,7 +64,6 @@ public class InventoryPanel extends JPanel {
         cell.add(iconLabel, BorderLayout.CENTER);
         cell.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
-        // Auswahl-Logik
         cell.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -81,7 +79,7 @@ public class InventoryPanel extends JPanel {
             selectedItems.remove(item);
             cell.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         } else {
-            if (selectedItems.size() < 2) { // Maximal zwei
+            if (selectedItems.size() < 2) {
                 selectedItems.add(item);
                 cell.setBorder(BorderFactory.createLineBorder(Color.RED, 3));
             }

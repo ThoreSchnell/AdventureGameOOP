@@ -69,11 +69,9 @@ public class Overlays extends JFrame {
 
         this.inventoryPanel = new InventoryPanel(items);
 
-        // Knight einmal erzeugen
         knight = new Knight();
         knight.setSize(knight.getPreferredSize());
 
-        // Startposition einmalig setzen
         GraphicsDevice gd2 = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         int width = gd2.getDisplayMode().getWidth();
         int height = gd2.getDisplayMode().getHeight();

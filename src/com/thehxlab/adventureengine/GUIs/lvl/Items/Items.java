@@ -11,7 +11,6 @@ public class Items extends JLabel {
     private boolean isInInv;
     private String name;
     private Overlays overlay;
-    private boolean isUsed;
 
     public Items(String imagePath, String name, Overlays overlay, boolean isInInv,boolean isUsed) {
         super(name);
@@ -52,8 +51,5 @@ public class Items extends JLabel {
 
     public void setInInv(boolean inInv) {
         this.isInInv = inInv;
-    }
-    public  void isUsed(boolean isUsed){
-        this.isUsed = isUsed;
     }
 }
