@@ -1,5 +1,6 @@
 package com.thehxlab.adventureengine.GUIs;
 
+import com.thehxlab.adventureengine.GUIs.lvl.InventoryPanel;
 import com.thehxlab.adventureengine.interpreter.CommandExecutor;
 import com.thehxlab.adventureengine.GUIs.Player.Knight;
 import com.thehxlab.adventureengine.GUIs.lvl.lvlpainter;
@@ -8,20 +9,28 @@ import com.thehxlab.adventureengine.core.Player;
 import com.thehxlab.adventureengine.core.Room;
 import com.thehxlab.adventureengine.GUIs.lvl.Items.Items;
 
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Overlays extends JFrame {
+    private InventoryPanel inventoryPanel;
+    private final List<Items> items = new ArrayList<>();
+    private Items selectedItem = null;
+    private String selectedAction = null;
+
     private CommandExecutor commandExecutor;
     private final GameWorld world;
     private JLayeredPane layeredPane;
 
+    private Knight knight;  // <-- Knight wird dauerhaft erhalten
+
     public Overlays(GameWorld world) {
         this.world = world;
-        commandExecutor = new CommandExecutor(world);
+        this.commandExecutor = new CommandExecutor(world);
         setTitle("Game");
         setUndecorated(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -38,7 +47,6 @@ public class Overlays extends JFrame {
 
         addWindowFocusListener(new WindowAdapter() {
             boolean focus = false;
-
             @Override
             public void windowLostFocus(WindowEvent e) {
                 if (focus) {
@@ -46,20 +54,37 @@ public class Overlays extends JFrame {
                     focus = false;
                 }
             }
-
             @Override
             public void windowGainedFocus(WindowEvent e) {
                 focus = true;
                 setVisible(true);
                 System.out.println("Fokus wieder da");
-
             }
         });
 
         layeredPane = new JLayeredPane();
         add(layeredPane);
+
+        initializeItems();
+
+        // Knight einmal erzeugen
+        knight = new Knight();
+        knight.setSize(knight.getPreferredSize());
+
+        // Startposition einmalig setzen
+        GraphicsDevice gd2 = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        int width = gd2.getDisplayMode().getWidth();
+        int height = gd2.getDisplayMode().getHeight();
+        int startX = (width - knight.getWidth()) / 2;
+        int startY = (height - knight.getHeight()) / 2;
+        knight.setLocation(startX, startY);
+
         reloadUI();
         setVisible(true);
+    }
+
+    private void initializeItems() {
+        items.add(new Items("/com/thehxlab/adventureengine/GUIs/lvl/Items/Seil.png", "Seil", this, false));
     }
 
     private void reloadUI() {
@@ -77,11 +102,7 @@ public class Overlays extends JFrame {
         background.setBounds(0, 0, width, height);
         layeredPane.add(background, Integer.valueOf(0));
 
-        Knight knight = new Knight();
-        knight.setSize(knight.getPreferredSize());
-        int centerX = (width - knight.getWidth()) / 2;
-        int centerY = (height - knight.getHeight()) / 2;
-        knight.setLocation(centerX, centerY);
+        // Achtung: immer denselben Knight verwenden
         layeredPane.add(knight, Integer.valueOf(2));
 
         JPanel stage = new lvlpainter("com/thehxlab/adventureengine/GUIs/lvl/" + roomName + "/stage.png", true, knight);
@@ -91,50 +112,63 @@ public class Overlays extends JFrame {
         JPanel foreground = new lvlpainter("com/thehxlab/adventureengine/GUIs/lvl/" + roomName + "/foreground.png", false, null);
         foreground.setBounds(0, 0, width, height);
         layeredPane.add(foreground, Integer.valueOf(3));
-        System.out.println(roomName);
 
-        Items rope = new Items("src/com/thehxlab/adventureengine/GUIs/lvl/Items/Seil.png", "Seil", this, false);
+        for (Items item : items) {
+            if (!item.isInInv()) {
+                item.setLocation(width / 3, height / 3 + 200);
+                layeredPane.add(item, Integer.valueOf(2));
+            }
+        }
 
-        rope.setLocation(width / 3, height / 3+200);
-        layeredPane.add(rope, Integer.valueOf(2));
+        addNavigationButtons(width, height);
+        addUIElements(width, height);
 
-        // add(key);
+        inventoryPanel.refresh();
+        layeredPane.repaint();
+        layeredPane.revalidate();
+    }
 
+    public void itemClicked(Items item) {
+        selectedItem = item;
+        System.out.println("Item ausgewählt: " + item.getName());
+        checkAndExecute();
+    }
 
+    private void addNavigationButtons(int width, int height) {
+        JButton goN = new JButton("Norden");
+        goN.setBounds((width - 80) / 2, 10, 80, 30);
+        goN.addActionListener(e -> {
+            commandExecutor.execute("go", "North");
+            reloadUI();
+        });
+        layeredPane.add(goN, Integer.valueOf(4));
 
+        JButton goE = new JButton("Osten");
+        goE.setBounds(width - 90, height / 2 - 15, 80, 30);
+        goE.addActionListener(e -> {
+            commandExecutor.execute("go", "East");
+            reloadUI();
+        });
+        layeredPane.add(goE, Integer.valueOf(4));
 
-            JButton goN = new JButton("Norden");
-            goN.setBounds((width - 80) / 2, 10, 80, 30);
-            goN.addActionListener(e -> {
-                commandExecutor.execute("go","North");
-                reloadUI();
-            });
-            layeredPane.add(goN, Integer.valueOf(4));
+        JButton goS = new JButton("Süden");
+        goS.setBounds((width - 80) / 2, height - 100, 80, 30);
+        goS.addActionListener(e -> {
+            commandExecutor.execute("go", "South");
+            reloadUI();
+        });
+        layeredPane.add(goS, Integer.valueOf(4));
 
-            JButton goE = new JButton("Osten");
-            goE.setBounds(width - 90, height / 2 - 15, 80, 30);
-            goE.addActionListener(e -> {
-                commandExecutor.execute("go","East");
-                reloadUI();
-            });
-            layeredPane.add(goE, Integer.valueOf(4));
+        JButton goW = new JButton("Westen");
+        goW.setBounds(10, height / 2 - 15, 80, 30);
+        goW.addActionListener(e -> {
+            commandExecutor.execute("go", "West");
+            reloadUI();
+        });
+        layeredPane.add(goW, Integer.valueOf(4));
+    }
 
-            JButton goS = new JButton("Süden");
-            goS.setBounds((width - 80) / 2, height - 100, 80, 30);
-            goS.addActionListener(e -> {
-                commandExecutor.execute("go","South");
-                reloadUI();
-            });
-            layeredPane.add(goS, Integer.valueOf(4));
-
-            JButton goW = new JButton("Westen");
-            goW.setBounds(10, height / 2 - 15, 80, 30);
-            goW.addActionListener(e -> {
-                commandExecutor.execute("go","West");
-                reloadUI();
-            });
-            layeredPane.add(goW, Integer.valueOf(4));
-
+    private void addUIElements(int width, int height) {
         JPanel UITop = new JPanel(new BorderLayout());
         UITop.setBounds(0, 0, width, height / 12);
         JButton settings = new JButton("Einstellungen");
@@ -149,62 +183,48 @@ public class Overlays extends JFrame {
 
         JPanel UIPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         UIPanel.setOpaque(false);
+        UIPanel.add(getActionPanel(width, height));
 
         JPanel UIinv = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        UIinv.setOpaque(false);
-        JPanel InvGrid = invcell();
-        InvGrid.setPreferredSize(new Dimension(width / 2 - 30, height / 4 - 20));
-        UIinv.add(InvGrid);
+        inventoryPanel = new InventoryPanel(items);
+        UIinv.setBackground(new Color(133, 133, 133));
+        UIinv.add(inventoryPanel);
 
-        JPanel UseGrid = getjPanel(width, height);
-
-        UIPanel.add(UseGrid);
         UIBack.add(UIPanel, BorderLayout.WEST);
         UIBack.add(UIinv, BorderLayout.EAST);
         layeredPane.add(UIBack, Integer.valueOf(5));
-
-        layeredPane.repaint();
-        layeredPane.revalidate();
     }
-    public void itemClicked(String name) {
-        System.out.println("Item wurde angeklickt: " + name);
 
-        // Hier könntest du jetzt beliebige Logik machen, z.B.
-        // Aktuelles Item merken
-        // Command ausführen
-        // GUI updaten
-    }
-    private static JPanel getjPanel(int width, int height) {//Die Klasse ist für das erstellen von dem Button Planel unten Links
-        JPanel UseGrid = new JPanel(new GridLayout(3, 3, 10, 10));
-        UseGrid.setOpaque(false);
-        UseGrid.setPreferredSize(new Dimension(width / 2, height / 4 - 20));
+    private JPanel getActionPanel(int width, int height) {
+        JPanel panel = new JPanel(new GridLayout(3, 3, 10, 10));
+        panel.setOpaque(false);
+        panel.setPreferredSize(new Dimension(width / 2, height / 4 - 20));
 
-        for (String text : new String[]{"Geben", "Nehmen", "Benutze", "Öffne", "Untersuche", "Drücke", "Schließe", "Rede", "Ziehe"}) {
-            JButton b = new JButton(text);
-            if (text.equals("Geben")) b.setBackground(Color.RED);
-
-
-            /*if(text.equals("Nehmen")&&Itemauswahl){
-                commandExecutor.execute("take",Item);
-            }*/
-
-
-            UseGrid.add(b);
+        String[] actions = {"Geben", "Nehmen", "Benutze", "Öffne", "Untersuche", "Drücke", "Schließe", "Rede", "Ziehe"};
+        for (String action : actions) {
+            JButton button = new JButton(action);
+            button.addActionListener(e -> {
+                selectedAction = action;
+                System.out.println("Aktion ausgewählt: " + selectedAction);
+                checkAndExecute();
+            });
+            panel.add(button);
         }
-
-        return UseGrid;
+        return panel;
     }
 
-    private JPanel invcell() {
-        JPanel InvGrid = new JPanel(new GridLayout(3, 4, 10, 10));
-        InvGrid.setOpaque(false);
-        for (int i = 0; i < 12; i++) {
-            JPanel cell = new JPanel();
-            cell.setBackground(new Color(100 + i * 10, 100 + i * 10, 255 - i * 10));
-            cell.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-            InvGrid.add(cell);
+    private void checkAndExecute() {
+        if (selectedItem != null && selectedAction != null) {
+            System.out.println("Führe aus: " + selectedAction + " auf " + selectedItem.getName());
+            if (selectedAction.equals("Nehmen")) {
+                commandExecutor.execute("take", selectedItem.getName());
+                selectedItem.setInInv(true);
+                inventoryPanel.refresh();
+                reloadUI();
+            }
+            selectedAction = null;
+            selectedItem = null;
         }
-        return InvGrid;
     }
 
     private void Settings(JFrame parent) {
