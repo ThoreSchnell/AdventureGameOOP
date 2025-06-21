@@ -26,7 +26,7 @@ public class Overlays extends JFrame {
     private final GameWorld world;
     private JLayeredPane layeredPane;
 
-    private Knight knight;  // <-- Knight wird dauerhaft erhalten
+    private Knight knight;
 
     public Overlays(GameWorld world) {
         this.world = world;
@@ -67,6 +67,8 @@ public class Overlays extends JFrame {
 
         initializeItems();
 
+        this.inventoryPanel = new InventoryPanel(items);
+
         // Knight einmal erzeugen
         knight = new Knight();
         knight.setSize(knight.getPreferredSize());
@@ -84,7 +86,8 @@ public class Overlays extends JFrame {
     }
 
     private void initializeItems() {
-        items.add(new Items("/com/thehxlab/adventureengine/GUIs/lvl/Items/Seil.png", "Seil", this, false));
+        items.add(new Items("/com/thehxlab/adventureengine/GUIs/lvl/Items/Seil.png", "Seil", this, false,false));
+        items.add(new Items("/com/thehxlab/adventureengine/GUIs/lvl/Items/Brett.png","Brett",this,false,false));
     }
 
     private void reloadUI() {
@@ -102,7 +105,6 @@ public class Overlays extends JFrame {
         background.setBounds(0, 0, width, height);
         layeredPane.add(background, Integer.valueOf(0));
 
-        // Achtung: immer denselben Knight verwenden
         layeredPane.add(knight, Integer.valueOf(2));
 
         JPanel stage = new lvlpainter("com/thehxlab/adventureengine/GUIs/lvl/" + roomName + "/stage.png", true, knight);
@@ -115,7 +117,8 @@ public class Overlays extends JFrame {
 
         for (Items item : items) {
             if (!item.isInInv()) {
-                item.setLocation(width / 3, height / 3 + 200);
+                if(item.getName().equals("Seil"))item.setLocation(width/3,height/3+200);
+                if(item.getName().equals("Brett"))item.setLocation(width/3*2,height/3+200);
                 layeredPane.add(item, Integer.valueOf(2));
             }
         }
@@ -186,7 +189,6 @@ public class Overlays extends JFrame {
         UIPanel.add(getActionPanel(width, height));
 
         JPanel UIinv = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        inventoryPanel = new InventoryPanel(items);
         UIinv.setBackground(new Color(133, 133, 133));
         UIinv.add(inventoryPanel);
 
@@ -200,7 +202,7 @@ public class Overlays extends JFrame {
         panel.setOpaque(false);
         panel.setPreferredSize(new Dimension(width / 2, height / 4 - 20));
 
-        String[] actions = {"Geben", "Nehmen", "Benutze", "Öffne", "Untersuche", "Drücke", "Schließe", "Rede", "Ziehe"};
+        String[] actions = {"Geben", "Nehmen", "Benutze", "Öffne", "Untersuche", "Drücke", "Kombiniere", "Rede", "Ziehe"};
         for (String action : actions) {
             JButton button = new JButton(action);
             button.addActionListener(e -> {
@@ -214,18 +216,48 @@ public class Overlays extends JFrame {
     }
 
     private void checkAndExecute() {
-        if (selectedItem != null && selectedAction != null) {
-            System.out.println("Führe aus: " + selectedAction + " auf " + selectedItem.getName());
-            if (selectedAction.equals("Nehmen")) {
-                commandExecutor.execute("take", selectedItem.getName());
-                selectedItem.setInInv(true);
-                inventoryPanel.refresh();
-                reloadUI();
+        if (selectedAction == null) return;
+
+        if (selectedAction.equals("Kombiniere")) {
+            List<Items> selected = inventoryPanel.getSelectedItems();
+            if (selected.size() == 2) {
+                Items item1 = selected.get(0);
+                Items item2 = selected.get(1);
+                System.out.println("Kombiniere: " + item1.getName() + " + " + item2.getName());
+
+                if ((item1.getName().equals("Seil") && item2.getName().equals("Brett"))
+                        || (item1.getName().equals("Brett") && item2.getName().equals("Seil"))) {
+                    System.out.println("Du hast eine Brücke gebaut!");
+
+                    items.remove(item1);
+                    items.remove(item2);
+
+                    // Beispiel: neues Item erzeugen
+                    //Items bruecke = new Items("/com/thehxlab/adventureengine/GUIs/lvl/Items/Bruecke.png", "Brücke", this, true, false);
+                    //items.add(bruecke);
+
+                    inventoryPanel.refresh();
+                    reloadUI();
+                } else {
+                    System.out.println("Diese Kombination ergibt keinen Sinn.");
+                }
+
+                inventoryPanel.clearSelection();
+            } else {
+                System.out.println("Du musst zwei Items auswählen.");
             }
-            selectedAction = null;
-            selectedItem = null;
         }
+        else if (selectedAction.equals("Nehmen") && selectedItem != null) {
+            commandExecutor.execute("take", selectedItem.getName());
+            selectedItem.setInInv(true);
+            inventoryPanel.refresh();
+            reloadUI();
+        }
+
+        selectedAction = null;
+        selectedItem = null;
     }
+
 
     private void Settings(JFrame parent) {
         JPanel glassPane = new JPanel();

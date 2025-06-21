@@ -11,8 +11,9 @@ public class Items extends JLabel {
     private boolean isInInv;
     private String name;
     private Overlays overlay;
+    private boolean isUsed;
 
-    public Items(String imagePath, String name, Overlays overlay, boolean isInInv) {
+    public Items(String imagePath, String name, Overlays overlay, boolean isInInv,boolean isUsed) {
         super(name);
         this.name = name;
         this.overlay = overlay;
@@ -26,6 +27,9 @@ public class Items extends JLabel {
 
         if (!isInInv) {
             setupMouseListener();
+        }
+        if(isUsed){
+            this.remove(this);
         }
     }
 
@@ -48,5 +52,8 @@ public class Items extends JLabel {
 
     public void setInInv(boolean inInv) {
         this.isInInv = inInv;
+    }
+    public  void isUsed(boolean isUsed){
+        this.isUsed = isUsed;
     }
 }
