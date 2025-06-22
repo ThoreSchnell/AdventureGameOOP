@@ -84,8 +84,11 @@ public class Overlays extends JFrame {
     }
 
     private void initializeItems() {
-        items.add(new Items("/com/thehxlab/adventureengine/GUIs/lvl/Items/Seil.png", "Seil", this, false,false));
-        items.add(new Items("/com/thehxlab/adventureengine/GUIs/lvl/Items/Brett.png","Brett",this,false,false));
+        Player player = world.getPlayer();
+        Room currentRoom = player.getCurrentRoom();
+        String roomName = currentRoom.getName().toLowerCase();
+        items.add(new Items("/com/thehxlab/adventureengine/GUIs/lvl/Items/Seil.png", "Seil", this, false,false,"clearing", roomName));
+        items.add(new Items("/com/thehxlab/adventureengine/GUIs/lvl/Items/Brett.png","Brett",this,false,false,"clearing", roomName));
     }
 
     private void reloadUI() {
@@ -230,9 +233,9 @@ public class Overlays extends JFrame {
                     items.remove(item1);
                     items.remove(item2);
 
-                    // Beispiel: neues Item erzeugen
-                    //Items bruecke = new Items("/com/thehxlab/adventureengine/GUIs/lvl/Items/Bruecke.png", "Brücke", this, true, false);
-                    //items.add(bruecke);
+
+                    Items Floß = new Items("/com/thehxlab/adventureengine/GUIs/lvl/Items/Floß.png", "Floß", this, true, false,"clearing","clearing");
+                    items.add(Floß);
 
                     inventoryPanel.refresh();
                     reloadUI();

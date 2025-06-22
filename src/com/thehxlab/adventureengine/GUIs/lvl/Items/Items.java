@@ -9,10 +9,12 @@ import java.util.Objects;
 
 public class Items extends JLabel {
     private boolean isInInv;
+    private String isisRoom;
+    private String currentRoom;
     private String name;
     private Overlays overlay;
 
-    public Items(String imagePath, String name, Overlays overlay, boolean isInInv,boolean isUsed) {
+    public Items(String imagePath, String name, Overlays overlay, boolean isInInv,boolean isUsed,String isinRoom,String currentRoom) {
         super(name);
         this.name = name;
         this.overlay = overlay;
@@ -28,6 +30,10 @@ public class Items extends JLabel {
             setupMouseListener();
         }
         if(isUsed){
+            this.remove(this);
+        }
+        System.out.println(currentRoom + isinRoom);
+        if(!isinRoom.equals(currentRoom)){
             this.remove(this);
         }
     }
